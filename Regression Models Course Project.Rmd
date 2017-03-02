@@ -1,0 +1,60 @@
+---
+title: "Regression Models Course Project"
+output: pdf_document
+---
+#Executive summary
+You work for Motor Trend, a magazine about the automobile industry. Looking at a data set of a collection of cars, they are interested in exploring the relationship between a set of variables and miles per gallon (MPG) (outcome). They are particularly interested in the following two questions:
+
+* Is an automatic or manual transmission better for MPG
+* Quantify the MPG difference between automatic and manual transmissions
+
+#1. Is an automatic or manual transmission better for MPG
+First, an exploratory data analysis plot is performed. According, to the boxplot shown in Appendix I, the Manual transmission is better for MPG than the Automatic transmissiom type. 
+
+Next, a t-test is performed. The null hypothesis is that manual and automatic transmissions have the same performance.
+
+```{r, echo=TRUE}
+library(datasets);
+data(mtcars)
+mtcars$am <- factor(mtcars$am,labels=c('Automatic','Manual'))
+t.test(mpg~am, data=mtcars)
+```
+
+With a 95 percent confidence interval of [-11.280194  -3.209684] and p-value= 0.001374, we can reject the null hypothesis. The hypothesis testing indicated that a manual transmission is better than an automatic transmission for MPG. 
+
+#2. Quantify the MPG difference between automatic and manual transmissions
+First, a simple linear regression is performed
+
+```{r, echo=TRUE}
+fit1 <- lm(mpg~am, data = mtcars)
+summary(fit1)
+```
+
+With R^2 = 0.3598, this model only explains approximately 36% of the variance. Therefore, more regressors need to be considered for explaining the difference between automatic and manual transmission. This, is done using the R function step(), which perform variable selection.
+
+```{r, echo=TRUE, results='hide'}
+fit2 <- step(lm(mpg ~ .,data = mtcars))
+```
+
+```{r, echo=TRUE}
+summary(fit2)
+```
+
+The results show that including am, qsec and wt as regressors 85 % of the variance is explained (R^2 = 0.8497). The best linear regression fit, includes then am, qsec and wt as regressors.
+Residual plots are shown in Appendix II. 
+
+#Conclusions
+The model which includes three regressors (am, qsec and wt) explains 84% of the variance in MPG The regressor that mostly contribute to mpg, is wt (-3.917), followed by am (2.936) and qsec(1.226). On average, manual transmission cars have 2.936 MPGs more than automatic transmission cars. When only am was included as a regressor the effect was bigger (7.245 MPGs). 
+
+
+##Appendix I
+
+```{r setup, echo=TRUE}
+boxplot(mpg ~ am, data=mtcars, main="MPG by Transmission type", xlab="Transmisstion type", ylab="Miles per Gallon")
+```
+
+##Appendix II
+```{r, echo=TRUE}
+par(mfrow = c(2,2))
+plot(fit2)
+```
